@@ -8,10 +8,9 @@ import React from 'react';
 export type CardProps = {
   id: any
   nome:string;
-  vida:string;
-  ataque:string;
-  peso: string;
-  altura: string;
+  base_experience:string;
+  weight: string;
+  height: string;
 }
 type Props = {
   data: CardProps;
@@ -34,10 +33,10 @@ export function Card({ data, onPress }: Props) {
             {data.nome}
           </Text>
           <Text style={styles.email}>
-            {data.peso}
+          Peso: {data.weight} KG
           </Text>
           <Text style={styles.password}>
-                {data.altura}
+          Altura: {data.height} Metros
           </Text>
 
         </View>

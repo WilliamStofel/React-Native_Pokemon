@@ -20,14 +20,17 @@ import { PokemonService } from '../../Services/pokemon';
 type FormDataProps = {
   id: any
   nome:string;
-  vida:string;
-  ataque:string;
-  peso: string;
-  altura: string;
+  base_experience:string;
+  weight: string;
+  height: string;
 }
 
 const schemaRegister = yup.object({
   nome: yup.string().required("Nome é obrigatório").min(3, "Informe no minimo 3 digitos"),
+  base_experience: yup.string().required("Experiêcia ganhada ao ser derrotado").min(1, "Informe no minimo 1 número"),
+  weight: yup.string().required("Peso é obrigatório").min(1, "Informe no minimo 1 número"),
+  height: yup.string().required("Altura é obrigatório").min(1, "Informe no minimo 1 número"),
+
  
 })
 
@@ -38,7 +41,7 @@ export const Usuario = ({route, navigation}: UsuarioRouteProp ) => {
   const {control, handleSubmit, reset , setValue , formState: {errors}}  = useForm<FormDataProps>({
       resolver: yupResolver(schemaRegister) as any
   });
-
+  
   const[loading, setloading] = useState(true);
   const [searcherID,setSearcherID] = useState(false);
   const [NomePokemon,setNomePokemon] = useState("");
@@ -70,10 +73,10 @@ const handlerGetPokemon = async () => {
     if (Pokemon) {
       setPokemon(Pokemon);
       setValue("nome", Pokemon.nome);
-      setValue("vida", Pokemon.vida);
-      setValue("ataque", Pokemon.ataque);
-      setValue("altura", Pokemon.altura);
-      setValue("peso", Pokemon.peso);
+      setValue("height", Pokemon.height.toString());
+      setValue("weight", Pokemon.weight.toString());
+      setValue("base_experience", Pokemon.base_experience.toString());
+     
       setValue("id", Pokemon.id);
     }
   } catch (error: any) {
@@ -99,8 +102,10 @@ const handlerGetPokemon = async () => {
       reset();
       handleList();
       Toast.showSuccess("Usuário registrado com sucesso")
+      
     }catch (e){
       Toast.showSuccess("Erro ao registrar usuário "+e)
+      reset();
     }
 
 
@@ -117,11 +122,11 @@ const handlerGetPokemon = async () => {
       if(itemEncontrado){
         setPokemon({
           nome: itemEncontrado.nome,
-          altura: itemEncontrado.altura,
+          altura: itemEncontrado.height,
           id: itemEncontrado.id,
-          peso: itemEncontrado.peso,
-          ataque: itemEncontrado.ataque,
-          vida: itemEncontrado.vida
+          peso: itemEncontrado.weight,
+          ataque: itemEncontrado.base_experience,
+
         });
         setPokemon(itemEncontrado.id);
         Object.keys(itemEncontrado).forEach((key) => setValue(key as keyof FormDataProps,
@@ -144,6 +149,7 @@ const handlerGetPokemon = async () => {
   async function handlerAlterRegister(data: FormDataProps){
     try {
       setloading(true)
+      
       const reponseData =  await AsyncStorage.getItem('@crud_form:usuario')
       const dbData: FormDataProps[] = reponseData? JSON.parse(reponseData!) : [];
       const poke = dbData.findIndex((u) => u.id == data.id);
@@ -181,7 +187,8 @@ const handlerGetPokemon = async () => {
       const reponseData =  await AsyncStorage.getItem('@crud_form:usuario')
       const dbData: FormDataProps[] = reponseData? JSON.parse(reponseData!) : [];
       const indexRemove = dbData?.findIndex(item => item.id === data.id)
-      if(indexRemove){
+      console.log(indexRemove,dbData)
+      if(indexRemove !== -1){
         dbData.splice(indexRemove,1);
         
         await AsyncStorage.setItem('@crud_form:usuario', JSON.stringify(dbData))
@@ -229,56 +236,46 @@ const handlerGetPokemon = async () => {
           />
           <Controller 
             control={control}
-            name="vida"
-            defaultValue=''
+            name="base_experience"
+            
             render={({field: {onChange, value }})=>(
             <Input
-              placeholder='pontos de vida'
+              placeholder='Experiência ganhada ao ser derrotado.'
               onChangeText={onChange}
-              errorMessage={errors.vida?.message}
+              errorMessage={errors.base_experience?.message}
               value={value}
+
             />
             )}
           />
+ 
           <Controller 
             control={control}
-            name="ataque"
-            defaultValue=''
+            name="weight"
+            
             render={({field: {onChange, value }})=>(
             <Input
-              placeholder='pontos de ataque'
+              placeholder='peso em KG'
               onChangeText={onChange}
               
-              errorMessage={errors.ataque?.message}
+              errorMessage={errors.weight?.message}
               value={value}
-            />
-            )}
-          />
-          <Controller 
-            control={control}
-            name="peso"
-            defaultValue=''
-            render={({field: {onChange, value }})=>(
-            <Input
-              placeholder='peso'
-              onChangeText={onChange}
-              
-              errorMessage={errors.peso?.message}
-              value={value}
+     
             />
             )}
           />
            <Controller 
             control={control}
-            name="altura"
-            defaultValue=''
+            name="height"
+           
             render={({field: {onChange, value }})=>(
             <Input
-              placeholder='altura em centímetros'
+              placeholder='altura em metros'
               onChangeText={onChange}
-              
-              errorMessage={errors.altura?.message}
+              defaultValue={Pokemon?.height}
+              errorMessage={errors.height?.message}
               value={value}
+           
             />
             )}
           />
